@@ -1,3 +1,9 @@
+type Enhance<T, M> = T & {
+  [P in keyof M]: M[P] extends (t: any, ...args: infer V) => any
+    ? (...args: V) => Enhance<T, M>
+    : never;
+};
+
 export default function fi<
   T extends Object,
   M extends Record<string, (t: T, ...args: any[]) => any>
@@ -12,9 +18,5 @@ export default function fi<
   });
   Object.setPrototypeOf(t, proto);
 
-  return t as {
-    [P in keyof M]: M[P] extends (t: any, ...args: infer V) => infer R
-      ? (...args: V) => R
-      : never;
-  };
+  return t as Enhance<T, M>;
 }
